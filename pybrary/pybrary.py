@@ -1,6 +1,7 @@
 import re
 import os
 import requests
+from utils import fileUtils as utils
 
 from urllib.parse import urljoin
 
@@ -55,7 +56,6 @@ class Pybrary:
                 session.headers.update({
                     "x-csverf": response_json['csverf']
                 })
-
         else:
             raise AttributeError('Login failed, please check your username and password')
 
@@ -160,6 +160,31 @@ class Pybrary:
             session.update({"assets": self.get_session_assets(volume_id, session['id'])})
             sessions.append(session)
         return sessions
+
+    def get_volume_info(self, volume_id):
+        payload = {
+            'access': "",
+            'citation': "",
+            'links': "",
+            'funding': "",
+            'top': "",
+            'tags': "",
+            'excerpts': "",
+            'comments': "",
+            'records': "",
+            'containers': "all",
+            'metrics': "",
+            'state': "",
+        }
+
+        url = urljoin(self.__base_api_url, 'volume/' + str(volume_id))
+
+        response = self.__session.get(url=url, params=payload)
+        if response.status_code == 200:
+            return response.json()
+        else:
+            raise AttributeError('Cannot retrieve volume %d info', volume_id)
+
 
     def get_file_info(self, asset_id):
         url = urljoin(self.__base_api_url, 'asset/' + str(asset_id))
